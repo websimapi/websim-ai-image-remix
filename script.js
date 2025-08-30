@@ -11,14 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let uploadedImageDataUrl = null;
 
-    uploadLabel.addEventListener('click', (e) => {
-        // This is just to trigger the hidden file input.
-        // The 'for' attribute on the label already handles this.
-    });
-
-    imageUpload.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (file) {
+    function handleImageFile(file) {
+        if (file && file.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 uploadedImageDataUrl = e.target.result;
@@ -27,6 +21,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 previewText.style.display = 'none';
             };
             reader.readAsDataURL(file);
+        }
+    }
+
+    uploadLabel.addEventListener('click', (e) => {
+        // This is just to trigger the hidden file input.
+        // The 'for' attribute on the label already handles this.
+    });
+
+    imageUpload.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        handleImageFile(file);
+    });
+    
+    document.addEventListener('paste', (event) => {
+        const items = (event.clipboardData || window.clipboardData).items;
+        let imageFile = null;
+        for (const item of items) {
+            if (item.type.startsWith('image/')) {
+                imageFile = item.getAsFile();
+                break;
+            }
+        }
+
+        if (imageFile) {
+            event.preventDefault();
+            handleImageFile(imageFile);
         }
     });
 
@@ -75,4 +95,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
